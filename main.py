@@ -6,6 +6,17 @@ from sklearn import preprocessing
 from tensorflow.keras.preprocessing.text import Tokenizer
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 
+# Load data
+
 data = pd.read_csv('data/news.csv')
-print(data.head())
+
+# Preprocess data
+
+data = data.drop(["Unnamed: 0"], axis=1)
+
+# Data encoding
+
+le = preprocessing.LabelEncoder()
+le.fit(data['label'])
+data['label'] = le.transform(data['label'])
 
