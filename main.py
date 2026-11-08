@@ -66,3 +66,40 @@ training_labels = labels[split:training_size]
 training_sequences1 = np.array(training_sequences1)
 test_sequences1 = np.array(test_sequences1)
 
+# Generate Word Embeddings
+
+embedding_index = {}
+with open('glove.6B.50d.txt', 'r', encoding='utf-8') as f:
+    for line in f:
+        values = line.split()
+        word = values[0]
+        coefs = np.asarray(values[1:], dtype='float32')
+        embedding_index[word] = coefs
+
+embedding_matrix = np.zeros((vocab_size1 + 1, embedding_dim))
+
+for word, i in word_index1.items():
+    if i < vocab_size1:
+        embedding_vector = embedding_index.get(word)
+        if embedding_vector is not None:
+            embedding_matrix[i] = embedding_vector
+
+# Model Architecture
+
+# Embedding: The embedding layer uses pre-trained GloVe embeddings.
+# Conv1D: a 1D convolutional layer to detect patterns in the text.
+# LSTM(64): An LSTM layer to capture long-term dependencies in the data.
+
+model = tf.keras.Sequential([
+    tf.keras.layers.Embedding(vocab_size1 + 1, embedding_dim, input_length=max_length, weights=[embedding_matrix], trainable=False),
+    tf.keras.layers.Dropout(0.2),
+    tf.keras.layers.Conv1D(64, 5, activation='relu'),
+    tf.keras.layers.MaxPooling1D(pool_size=4),
+    tf.keras.layers.LSTM(64),
+    tf.keras.layers.Dense(1, activation='sigmoid')
+])
+
+model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+model.summary()
+
+
