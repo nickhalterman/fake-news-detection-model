@@ -102,4 +102,29 @@ model = tf.keras.Sequential([
 model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
 model.summary()
 
+# Training the Model
 
+history = model.fit(
+    training_sequences1,
+    np.array(training_labels),
+    epochs=50,
+    validation_data=(test_sequences1, np.array(test_labels)),
+    verbose=2
+)
+
+headlines = [
+    "Senate passes budget bill after late-night vote",
+    "Obama meets with world leaders at G20 summit",
+    "Federal Reserver holds interest rates steady",
+    "SHOCKING: Senator caught in secret scandal the media won't report",
+    "BREAKING: Leaked documents prove election was rigged",
+    "You won't beleive what this politcian just said about voters",
+    "Senate votes to make Antarctica the 51st state"
+]
+
+for h in headlines:
+    seq = tokenizer1.texts_to_sequences([h])
+    seq = pad_sequences(seq, maxlen=max_length, padding=padding_type, truncating=trunc_type)
+    score = model.predict(seq, verbose=0) [0] [0]
+    label = "TRUE" if score >= 0.5 else "FAKE"
+    print(f"{label} ({score:.2f}) {h}")
