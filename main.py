@@ -27,7 +27,7 @@ max_length = 54
 padding_type = 'post'
 trunc_type = 'post'
 oov_tok = "<00V>"
-training_size = 3000
+training_size = len(data)
 test_portion = 0.1
 
 # Tokenization
@@ -48,7 +48,7 @@ tokenizer1.fit_on_texts(title)
 word_index1 = tokenizer1.word_index
 vocab_size1 = len(word_index1)
 sequences1 = tokenizer1.texts_to_sequences(title)
-padded1 = pad_sequences(sequences1, padding=padding_type, truncating=trunc_type)
+padded1 = pad_sequences(maxlen=max_length, sequences=sequences1, padding=padding_type, truncating=trunc_type)
 
 # Split Data for Training and Testing
 
@@ -91,6 +91,7 @@ for word, i in word_index1.items():
 # LSTM(64): An LSTM layer to capture long-term dependencies in the data.
 
 model = tf.keras.Sequential([
+    tf.keras.Input(shape=(max_length,)),
     tf.keras.layers.Embedding(vocab_size1 + 1, embedding_dim, input_length=max_length, weights=[embedding_matrix], trainable=False),
     tf.keras.layers.Dropout(0.2),
     tf.keras.layers.Conv1D(64, 5, activation='relu'),
@@ -120,10 +121,10 @@ history = model.fit(
 headlines = [
     "Senate passes budget bill after late-night vote",
     "Obama meets with world leaders at G20 summit",
-    "Federal Reserver holds interest rates steady",
+    "Federal Reserve holds interest rates steady",
     "SHOCKING: Senator caught in secret scandal the media won't report",
     "BREAKING: Leaked documents prove election was rigged",
-    "You won't beleive what this politcian just said about voters",
+    "You won't believe what this politician just said about voters",
     "Senate votes to make Antarctica the 51st state",
     "Shocking video exposes what the government is hiding from you."
 ]
