@@ -5,6 +5,7 @@ from sklearn.model_selection import train_test_split
 from sklearn import preprocessing
 from tensorflow.keras.preprocessing.text import Tokenizer
 from tensorflow.keras.preprocessing.sequence import pad_sequences
+from src.fact_check import fact_check
 
 # Load data
 
@@ -69,7 +70,7 @@ test_sequences1 = np.array(test_sequences1)
 # Generate Word Embeddings
 
 embedding_index = {}
-with open('glove.6B.50d.txt', 'r', encoding='utf-8') as f:
+with open('data/glove/glove.6B.50d.txt', 'r', encoding='utf-8') as f:
     for line in f:
         values = line.split()
         word = values[0]
@@ -92,7 +93,7 @@ for word, i in word_index1.items():
 
 model = tf.keras.Sequential([
     tf.keras.Input(shape=(max_length,)),
-    tf.keras.layers.Embedding(vocab_size1 + 1, embedding_dim, input_length=max_length, weights=[embedding_matrix], trainable=False),
+    tf.keras.layers.Embedding(vocab_size1 + 1, embedding_dim, weights=[embedding_matrix], trainable=False),
     tf.keras.layers.Dropout(0.2),
     tf.keras.layers.Conv1D(64, 5, activation='relu'),
     tf.keras.layers.MaxPooling1D(pool_size=4),
@@ -133,5 +134,12 @@ for h in headlines:
     seq = tokenizer1.texts_to_sequences([h])
     seq = pad_sequences(seq, maxlen=max_length, padding=padding_type, truncating=trunc_type)
     score = model.predict(seq, verbose=0) [0] [0]
-    label = "TRUE" if score >= 0.5 else "FAKE"
-    print(f"{label} ({score:.2f}) {h}")
+    style_ok = score >= 0.5
+
+    facts_ok, reason = fact_check(h)
+
+    final = "TRUE" if (style_ok and facts_ok) else "FAKE"
+
+    print(f"\n{final} {h}")
+    print(f"    Style robot: {'TRUE' if style_ok else 'FAKE'} ({score:.2f})")
+    print(f"    Fact-checker: {reason}")
