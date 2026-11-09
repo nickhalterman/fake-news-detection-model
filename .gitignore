@@ -5,3 +5,4 @@ data/
 glove*
 _pycache_/
 glove.6B.*
+.env
