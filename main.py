@@ -104,11 +104,16 @@ model.summary()
 
 # Training the Model
 
+early_stop = tf.keras.callbacks.EarlyStopping(
+    monitor='val_loss', patience=3, restore_best_weights=True
+)
+
 history = model.fit(
     training_sequences1,
     np.array(training_labels),
     epochs=50,
     validation_data=(test_sequences1, np.array(test_labels)),
+    callbacks=[early_stop],
     verbose=2
 )
 
@@ -119,7 +124,8 @@ headlines = [
     "SHOCKING: Senator caught in secret scandal the media won't report",
     "BREAKING: Leaked documents prove election was rigged",
     "You won't beleive what this politcian just said about voters",
-    "Senate votes to make Antarctica the 51st state"
+    "Senate votes to make Antarctica the 51st state",
+    "Shocking video exposes what the government is hiding from you."
 ]
 
 for h in headlines:
